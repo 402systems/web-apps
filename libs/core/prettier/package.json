@@ -1,0 +1,12 @@
+{
+  "name": "@402systems/lib-core-prettier",
+  "version": "0.0.1",
+  "main": "index.js",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "prettier-plugin-tailwindcss": "^0.7.2"
+  }
+}

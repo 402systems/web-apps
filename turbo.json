@@ -1,0 +1,23 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "dist/**"]
+    },
+    "format:check": {
+      "cache": true,
+      "inputs": ["**/*.{ts,tsx,js,jsx,json,md,css}", ".prettierrc.js"]
+    },
+    "lint": {},
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  },
+  "globalDependencies": [
+    "libs/core/eslint/**/*",
+    "libs/core/prettier/**/*",
+    "libs/core/tsconfig/**/*"
+  ]
+}

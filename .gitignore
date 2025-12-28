@@ -1,0 +1,43 @@
+# --- System / IDE ---
+.DS_Store
+node_modules
+*.log
+.env
+.env.*
+!.env.example
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# --- pnpm ---
+pnpm-debug.log*
+.pnpm-debug.log*
+
+# --- Turborepo ---
+.turbo
+
+# --- Next.js (Apps) ---
+# Covers apps/core/design/.next, etc.
+**/.next/
+**/out/
+**/build/
+
+# --- TypeScript / Distribution (Libs) ---
+# Covers libs/core/ui/dist, etc.
+**/dist/
+**/*.tsbuildinfo
+
+# --- Testing / Coverage ---
+**/coverage/
+**/.nyc_output/
+
+# --- Other Build Artifacts ---
+**/.vercel
+**/.serverless
+**/.cache
+**/.expo
+**/bower_components
+
+# --- Optional: Ignore standalone build outputs ---
+**/.next/standalone/

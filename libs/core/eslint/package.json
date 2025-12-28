@@ -1,0 +1,26 @@
+{
+  "name": "@402systems/lib-core-eslint",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "main": "index.mjs",
+  "types": "index.d.ts",
+  "dependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@eslint/js": "^9.39.2",
+    "@next/eslint-plugin-next": "^16.1.1",
+    "eslint-config-next": "^16.1.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "typescript-eslint": "^8.50.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.2"
+  },
+  "peerDependencies": {
+    "eslint": "^9.39.2"
+  }
+}
