@@ -25,20 +25,24 @@ jobs:
         run: |
           # Define the root of your artifacts in R2
           COMMIT_HASH=$(git rev-parse --short HEAD)
-          
-          # Find all directories in 'apps/' that have a 'dist' or 'out' folder
-          # Adjust 'dist' to whatever your build output folder is named
-          for app_dir in apps/*; do
-            if [ -d "$app_dir/out" ]; then
-              APP_NAME=$(basename "$app_dir")
-              echo "Uploading $APP_NAME to R2..."
-              
-              # We use the AWS CLI-compatible R2 upload action
-              # Destination path: artifacts/<commit_id>/<app_name>/
-              npx wrangler r2 object put \
-                "${{ secrets.R2_BUCKET_NAME }}/artifacts/${COMMIT_HASH}/${APP_NAME}/" \
-                --file "$app_dir/out" --recursive
-            fi
+          # 1. Find all 'out' folders under 'apps/'
+          find apps -type d -name "out" | while read -r dist_path; do
+            # If dist_path is "apps/marketing/blog/out"
+            # 'app_dir' becomes "apps/marketing/blog"
+            app_dir=$(dirname "$dist_path")
+            # 'app_name' becomes "blog"
+            app_name=$(basename "$app_dir")
+            # Get the team folder: "apps/marketing"
+            team_dir=$(dirname "$app_dir")
+            # Get the team name: "marketing"
+            team_name=$(basename "$team_dir")
+            DEPLOY_ID="${team_name}-${app_name}"
+            echo "🚀 Deploying App: $DEPLOY_ID from $dist_path"
+            # Sync to R2
+            # Final Path: artifacts/<commit_id>/blog/
+            npx wrangler r2 object put \
+              "${{ secrets.R2_BUCKET_NAME }}/artifacts/${COMMIT_HASH}/${DEPLOY_ID}/" \
+              --file "$dist_path" --recursive
           done
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
