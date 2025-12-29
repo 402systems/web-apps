@@ -25,6 +25,7 @@ jobs:
         run: |
           # Define the root of your artifacts in R2
           COMMIT_HASH=$(git rev-parse --short HEAD)
+          R2_ENDPOINT="https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com"
           # 1. Find all 'out' folders under 'apps/'
           find apps -type d -name "out" | while read -r dist_path; do
             # If dist_path is "apps/marketing/blog/out"
@@ -40,9 +41,10 @@ jobs:
             echo "🚀 Deploying App: $DEPLOY_ID from $dist_path"
             # Sync to R2
             # Final Path: artifacts/<commit_id>/blog/
-            npx wrangler r2 object put \
-              "${{ secrets.R2_BUCKET_NAME }}/artifacts/${COMMIT_HASH}/${DEPLOY_ID}/" \
-              --file "$dist_path" --recursive
+            aws s3 sync "$dist_path" \
+              "s3://${{ secrets.R2_BUCKET_NAME }}/artifacts/${COMMIT_HASH}/${DEPLOY_ID}/" \
+              --endpoint-url "$R2_ENDPOINT" \
+              --region auto
           done
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
