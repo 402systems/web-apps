@@ -15,38 +15,64 @@ Prerequisites:
 4. Install a workspace wide package: `pnpm i -wD <pkg>`. WARN: You should almost never need to do this, unless you are installing a build tool
 5. Run all preflight checks `pnpm checkall`
 
-## Create New Project
+## Scripts
+
+### Create New Project
 
 1. `pnpm gen:package`
 
-## Running scripts
+### Running scripts
 
 - Use `--filter` to scope `pnpm` to your package.
 - Lint: `pnpm <cmd> --filter @402systems/app-core-design`
 
-## UI Framework
+### UI Framework
 
 - All UI components are in the libs/core/ui package. The package must be referenced as `@402systems/core-ui/*`
   in UI code. If you use the generated templates, the compiler will be aware of this.
 - UI primitives are made using ShadCN. Add new primitives via `pnpm dlx shadcn@latest add <name>`.
 - See <https://ui.shadcn.com/docs/components> for all components
 
-## Linting
+### Linting
 
 - `pnpm lint` to lint the entire repo. Use `--filter <pkg>` to scope down
 - `pnpm lint:fix` to lint and autofix the entire repo. Use `--filter <pkg>` to scope down
 
-## Formatting
+### Formatting
 
 - `pnpm format:check`
 - `pnpm format:fix`
 
-## Lint + Formatting
+### Lint + Formatting
 
 - `pnpm fixall` to autofix linting and formatting issues
 - `pnpm checkall` to check all formatting is correct
 
-## Deploy
+## Deployment
+
+### Overview
+
+402systems works on an app granular biphase deployment strategy. Each app can have a staging, and a production variant deployed at once.
+Apps are all deployed to `web.402systems.com` and accessed via `[staging.]web.402systems.com/<category>-<app_name>`.
+R2 KV Workers read the requested path at edge distribution centers and decide which artifacts to vend out
+
+### Artifact Storage
+
+Build artifacts from `app/**/*` projects are emitted to an `out` directory within each app.
+These static assets must be stored in Cloudflare R2 within a `staging` and `production` prefix.
+For example,
+
+```
+build-artifacts
+- staging
+   - games-dobble
+      - index.html (from commit #10)
+- production
+   - games-dobble
+      - index.html (from commit #7)
+```
+
+### How to deploy
 
 - Head to the github actions window
 - Select `Deploy`

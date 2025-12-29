@@ -8,7 +8,8 @@ const nextConfig = {
   reactStrictMode: true,
 
   // This allows you to deploy each app independently as a Docker container
-  output: 'standalone',
+  output: 'export',
+  basePath: '/games-dobble',
 };
 
 export default nextConfig;
