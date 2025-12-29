@@ -1,0 +1,46 @@
+name: Deploy Frontend Apps to R2
+on:
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build all apps
+        run: pnpm build
+      - name: Upload Apps to R2
+        shell: bash
+        run: |
+          # Define the root of your artifacts in R2
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          
+          # Find all directories in 'apps/' that have a 'dist' or 'out' folder
+          # Adjust 'dist' to whatever your build output folder is named
+          for app_dir in apps/*; do
+            if [ -d "$app_dir/dist" ]; then
+              APP_NAME=$(basename "$app_dir")
+              echo "Uploading $APP_NAME to R2..."
+              
+              # We use the AWS CLI-compatible R2 upload action
+              # Destination path: artifacts/<commit_id>/<app_name>/
+              npx wrangler r2 object put \
+                "${{ secrets.R2_BUCKET_NAME }}/artifacts/${COMMIT_HASH}/${APP_NAME}/" \
+                --file "$app_dir/dist" --recursive
+            fi
+          done
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }} 
+          # Note: Alternatively, use the 'ryand56/r2-upload-action' for a simpler UI

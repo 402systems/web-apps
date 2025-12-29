@@ -41,3 +41,6 @@ pnpm-debug.log*
 
 # --- Optional: Ignore standalone build outputs ---
 **/.next/standalone/
+
+# --- act (github actions testing)
+.secrets
