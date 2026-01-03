@@ -153,6 +153,46 @@ importers:
         specifier: latest
         version: 5.9.3
 
+  apps/misc/bingo:
+    dependencies:
+      '@402systems/lib-core-ui':
+        specifier: workspace:*
+        version: link:../../../libs/core/ui
+      html-to-image:
+        specifier: ^1.11.13
+        version: 1.11.13
+      lucide-react:
+        specifier: ^0.562.0
+        version: 0.562.0(react@19.2.3)
+      next:
+        specifier: latest
+        version: 16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react:
+        specifier: latest
+        version: 19.2.3
+      react-dom:
+        specifier: latest
+        version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@402systems/lib-core-eslint':
+        specifier: workspace:*
+        version: link:../../../libs/core/eslint
+      '@402systems/lib-core-tsconfig':
+        specifier: workspace:*
+        version: link:../../../libs/core/tsconfig
+      '@types/node':
+        specifier: latest
+        version: 25.0.3
+      '@types/react':
+        specifier: latest
+        version: 19.2.7
+      '@types/react-dom':
+        specifier: latest
+        version: 19.2.3(@types/react@19.2.7)
+      typescript:
+        specifier: latest
+        version: 5.9.3
+
   libs/core/eslint:
     dependencies:
       '@eslint/eslintrc':
@@ -2836,6 +2876,9 @@ packages:
   homedir-polyfill@1.0.3:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}
     engines: {node: '>=0.10.0'}
+
+  html-to-image@1.11.13:
+    resolution: {integrity: sha512-cuOPoI7WApyhBElTTb9oqsawRvZ0rHhaHwghRLlTuffoD1B2aDemlCruLeZrUIIdvG7gs9xeELEPm6PhuASqrg==}
 
   iconv-lite@0.7.1:
     resolution: {integrity: sha512-2Tth85cXwGFHfvRgZWszZSvdo+0Xsqmw8k8ZwxScfcBneNUraK+dxRxRm24nszx80Y0TVio8kKLt5sLE7ZCLlw==}
@@ -6605,6 +6648,8 @@ snapshots:
   homedir-polyfill@1.0.3:
     dependencies:
       parse-passwd: 1.0.0
+
+  html-to-image@1.11.13: {}
 
   iconv-lite@0.7.1:
     dependencies:
