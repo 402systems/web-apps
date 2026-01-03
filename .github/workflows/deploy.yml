@@ -38,7 +38,7 @@ jobs:
         run: |
           TEAM_NAME=$(echo "${{ github.event.inputs.app_path }}" | cut -d'/' -f1)
           APP_NAME=$(echo "${{ github.event.inputs.app_path }}" | cut -d'/' -f2)
-          DEPLOY_ID="${TEAM_NAME}-${APP_NAME}"
+          DEPLOY_ID="${TEAM_NAME}/${APP_NAME}"
           NEXT_PUBLIC_BASE_PATH="/$DEPLOY_ID" pnpm --filter "./apps/${{ github.event.inputs.app_path }}" build
       - name: Sync to R2
         run: |
