@@ -12,6 +12,7 @@ import { useState, useEffect, useRef } from 'react';
 
 export default function Home() {
   const [n, setN] = useState<number>(7);
+  const [totalCardsPlayed, setTotalCardsPlayed] = useState<number>(57);
   const [deck, setDeck] = useState<DobbleCard[]>([]);
   const [opponentCard, setOpponentCard] = useState<DobbleCard | null>(null);
   const [userCard, setUserCard] = useState<DobbleCard | null>(null);
@@ -23,11 +24,24 @@ export default function Home() {
   const shakeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  const maxCards = n * n + n + 1;
+
+  useEffect(() => {
+    if (totalCardsPlayed > maxCards) {
+      setTotalCardsPlayed(maxCards);
+    }
+  }, [n, maxCards, totalCardsPlayed]);
+
   const startGame = () => {
     try {
       const generatedDeck = generateDobbleDeck(n);
       // Shuffle the deck (simple shuffle for now)
-      const shuffledDeck = generatedDeck.sort(() => Math.random() - 0.5);
+      let shuffledDeck = generatedDeck.sort(() => Math.random() - 0.5);
+
+      // Limit the deck size to totalCardsPlayed
+      if (shuffledDeck.length > totalCardsPlayed) {
+        shuffledDeck = shuffledDeck.slice(0, totalCardsPlayed);
+      }
 
       if (shuffledDeck.length >= 2) {
         setUserCard(shuffledDeck[0]);
@@ -109,17 +123,38 @@ export default function Home() {
       <h1 className="mb-8 text-3xl font-bold">Dobble Game (Solo)</h1>
 
       {!gameStarted && !gameOver && (
-        <div className="flex flex-col items-center justify-center space-y-2">
-          <div className="flex flex-col space-y-1">
+        <div className="flex w-64 flex-col items-center justify-center space-y-6">
+          <div className="flex w-full flex-col space-y-2">
+            <p className="text-sm font-medium">Number of Symbols: {n + 1}</p>
             <Slider
-              defaultValue={[5]}
+              value={[n]}
+              min={2}
               max={7}
               step={1}
-              onValueChange={(v) => setN(v[0])}
+              onValueChange={(v) => {
+                const val = v[0];
+                // Only allow prime n as per generateDobbleDeck constraint
+                const primes = [2, 3, 5, 7];
+                const closestPrime = primes.reduce((prev, curr) =>
+                  Math.abs(curr - val) < Math.abs(prev - val) ? curr : prev
+                );
+                setN(closestPrime);
+              }}
             />
-            <p>Number of Symbols: {n}</p>
           </div>
-          <Button onClick={startGame} className="mb-4">
+
+          <div className="flex w-full flex-col space-y-2">
+            <p className="text-sm font-medium">Total Cards: {totalCardsPlayed}</p>
+            <Slider
+              value={[totalCardsPlayed]}
+              min={2}
+              max={maxCards}
+              step={1}
+              onValueChange={(v) => setTotalCardsPlayed(v[0])}
+            />
+          </div>
+
+          <Button onClick={startGame} className="w-full">
             Start Game
           </Button>
         </div>
