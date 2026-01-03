@@ -1,15 +1,7 @@
+import '@402systems/lib-core-ui/globals.css';
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
+import { ThemeProvider } from './ThemeProvider';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export const metadata: Metadata = {
   title: 'core/db-demo',
@@ -22,11 +14,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="relative">
+            <div className="absolute top-4 right-4">
+              <ThemeToggle />
+            </div>
+            {children}
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

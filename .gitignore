@@ -22,6 +22,7 @@ pnpm-debug.log*
 **/.next/
 **/out/
 **/build/
+next-env.d.ts
 
 # --- TypeScript / Distribution (Libs) ---
 # Covers libs/core/ui/dist, etc.
