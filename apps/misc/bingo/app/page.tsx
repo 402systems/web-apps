@@ -1,13 +1,18 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@402systems/core-ui/components/ui/button";
-import { Card } from "@402systems/core-ui/components/ui/card";
-import { Input } from "@402systems/core-ui/components/ui/input";
+import { useState, useEffect, useRef } from 'react';
+import { toPng, toBlob } from 'html-to-image';
+import { Button } from '@402systems/core-ui/components/ui/button';
+import { Card } from '@402systems/core-ui/components/ui/card';
+import { Textarea } from '@402systems/core-ui/components/ui/textarea';
+import { Badge } from '@402systems/core-ui/components/ui/badge';
+import { Kbd } from '@402systems/core-ui/components/ui/kbd';
+import { Download, Share2, Printer } from 'lucide-react';
 
 export default function BingoPage() {
-  const [grid, setGrid] = useState<string[]>(Array(25).fill(""));
+  const [grid, setGrid] = useState<string[]>(Array(25).fill(''));
   const [isPreview, setIsPreview] = useState(false);
+  const boardRef = useRef<HTMLDivElement>(null);
 
   const updateCell = (index: number, value: string) => {
     const newGrid = [...grid];
@@ -15,54 +20,133 @@ export default function BingoPage() {
     setGrid(newGrid);
   };
 
+  const shuffleBoard = () => {
+    const shuffledGrid = [...grid];
+    shuffledGrid.sort(() => Math.random() - 0.5);
+    // Keep FREE SPACE at index 12
+    const freeSpaceValue = grid[12];
+    const newIndex = shuffledGrid.indexOf(freeSpaceValue);
+    [shuffledGrid[newIndex], shuffledGrid[12]] = [
+      shuffledGrid[12],
+      shuffledGrid[newIndex],
+    ];
+    setGrid(shuffledGrid);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 's' && e.ctrlKey) {
+        e.preventDefault();
+        shuffleBoard();
+      }
+      if (e.key.toLowerCase() === 'p' && e.ctrlKey) {
+        e.preventDefault();
+        setIsPreview(!isPreview);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [grid, isPreview]);
+
+  const handleDownloadImage = async () => {
+    if (!boardRef.current) return;
+    try {
+      const dataUrl = await toPng(boardRef.current, {
+        backgroundColor: '#f8fafc',
+        cacheBust: true,
+      });
+      const link = document.createElement('a');
+      link.download = `bingo-board-${Date.now()}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Failed to download image', err);
+    }
+  };
+
+  const handleShareImage = async () => {
+    if (!boardRef.current) return;
+    try {
+      const blob = await toBlob(boardRef.current, {
+        backgroundColor: '#f8fafc',
+        cacheBust: true,
+      });
+      if (!blob) return;
+
+      const file = new File([blob], 'bingo-board.png', { type: 'image/png' });
+
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'My Bingo Board',
+          text: 'Check out my custom bingo board!',
+        });
+      } else {
+        // Fallback for browsers that don't support file sharing
+        handleDownloadImage();
+      }
+    } catch (err) {
+      console.error('Failed to share image', err);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 p-8 flex flex-col items-center gap-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight text-slate-900">Bingo Builder</h1>
+    <div className="flex min-h-screen flex-col items-center gap-6 bg-slate-50 p-4 sm:gap-8 sm:p-8">
+      <div className="space-y-2 text-center">
+        <h1 className="text-4xl font-bold tracking-tight text-slate-900">
+          Bingo Builder
+        </h1>
         <p className="text-slate-500">Create your custom 5x5 bingo board</p>
       </div>
 
-      <div className="flex gap-4">
-        <Button
-          variant={isPreview ? "outline" : "default"}
-          onClick={() => setIsPreview(false)}
-        >
-          Edit Board
-        </Button>
-        <Button
-          variant={isPreview ? "default" : "outline"}
-          onClick={() => setIsPreview(true)}
-        >
-          View Result
-        </Button>
-        <Button
-          variant={"outline"}
-          onClick={() => {
-            const shuffledGrid = [...grid];
-            shuffledGrid.sort(() => Math.random() - 0.5);
-            const index = shuffledGrid.indexOf(grid[12]);
-            [shuffledGrid[index], shuffledGrid[12]] = [shuffledGrid[12], shuffledGrid[index]];
-            setGrid(shuffledGrid);
-          }}
-        >
-          Shuffle
-        </Button>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="flex flex-wrap justify-center gap-2">
+          <Button
+            variant={isPreview ? 'outline' : 'default'}
+            onClick={() => setIsPreview(false)}
+            className="relative"
+          >
+            Edit Board
+          </Button>
+          <Button
+            variant={isPreview ? 'default' : 'outline'}
+            onClick={() => setIsPreview(true)}
+          >
+            Preview <Kbd className="ml-2">Ctrl+P</Kbd>
+          </Button>
+          <Button variant={'outline'} onClick={shuffleBoard}>
+            Shuffle <Kbd className="ml-2">Ctrl+S</Kbd>
+          </Button>
+        </div>
       </div>
 
-      <Card className="p-6 bg-white shadow-xl border-slate-200">
-        <div className="grid grid-cols-5 gap-3 w-fit">
+      <Card
+        ref={boardRef}
+        className="w-full max-w-2xl border-slate-200 bg-white p-3 shadow-xl sm:p-6"
+      >
+        <div className="grid w-full grid-cols-5 gap-2 sm:gap-3">
           {grid.map((cell, i) => (
-            <div key={i} className="w-24 h-24 sm:w-32 sm:h-32">
+            <div key={i} className="aspect-square w-full">
               {isPreview ? (
-                <div className="w-full h-full flex items-center justify-center p-2 text-center border-2 border-slate-100 rounded-lg text-sm font-medium bg-slate-50 text-slate-700">
-                  {cell || (i === 12 ? "FREE" : "-")}
+                <div className="group relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-slate-100 bg-slate-50 p-1 text-center text-[10px] font-medium text-slate-700 sm:p-2 sm:text-sm">
+                  {i === 12 ? (
+                    <Badge
+                      variant="secondary"
+                      className="absolute top-1 right-1 scale-75"
+                    >
+                      FREE
+                    </Badge>
+                  ) : null}
+                  <span className="max-w-full break-words">
+                    {cell || (i === 12 ? 'FREE' : '-')}
+                  </span>
                 </div>
               ) : (
-                <textarea
-                  className="w-full h-full p-2 text-center text-sm border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 resize-none outline-none transition-all"
+                <Textarea
+                  className="h-full min-h-0 w-full resize-none p-1 text-center text-[10px] sm:p-2 sm:text-sm"
                   value={cell}
                   onChange={(e) => updateCell(i, e.target.value)}
-                  placeholder={i === 12 ? "FREE SPACE" : `Cell ${i + 1}`}
+                  placeholder={i === 12 ? 'FREE' : `${i + 1}`}
                 />
               )}
             </div>
@@ -71,9 +155,17 @@ export default function BingoPage() {
       </Card>
 
       {isPreview && (
-        <Button onClick={() => window.print()} variant="secondary">
-          Print Board
-        </Button>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Button onClick={handleDownloadImage} variant="secondary" size="lg">
+            <Download className="mr-2 h-4 w-4" /> Download PNG
+          </Button>
+          <Button onClick={handleShareImage} variant="secondary" size="lg">
+            <Share2 className="mr-2 h-4 w-4" /> Share Board
+          </Button>
+          <Button onClick={() => window.print()} variant="outline" size="lg">
+            <Printer className="mr-2 h-4 w-4" /> Print
+          </Button>
+        </div>
       )}
     </div>
   );
