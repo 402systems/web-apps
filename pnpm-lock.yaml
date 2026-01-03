@@ -153,6 +153,40 @@ importers:
         specifier: latest
         version: 5.9.3
 
+  apps/misc/bingo:
+    dependencies:
+      '@402systems/lib-core-ui':
+        specifier: workspace:*
+        version: link:../../../libs/core/ui
+      next:
+        specifier: latest
+        version: 16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react:
+        specifier: latest
+        version: 19.2.3
+      react-dom:
+        specifier: latest
+        version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@402systems/lib-core-eslint':
+        specifier: workspace:*
+        version: link:../../../libs/core/eslint
+      '@402systems/lib-core-tsconfig':
+        specifier: workspace:*
+        version: link:../../../libs/core/tsconfig
+      '@types/node':
+        specifier: latest
+        version: 25.0.3
+      '@types/react':
+        specifier: latest
+        version: 19.2.7
+      '@types/react-dom':
+        specifier: latest
+        version: 19.2.3(@types/react@19.2.7)
+      typescript:
+        specifier: latest
+        version: 5.9.3
+
   libs/core/eslint:
     dependencies:
       '@eslint/eslintrc':

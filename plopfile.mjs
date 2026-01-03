@@ -12,7 +12,7 @@ export default function (plop) {
         type: 'list',
         name: 'team',
         message: 'Which team does this belong to?',
-        choices: ['games', 'core']
+        choices: ['games', 'core', 'misc']
       },
       {
         type: 'input',
