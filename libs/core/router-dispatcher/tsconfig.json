@@ -1,0 +1,10 @@
+{
+  "extends": "../../../libs/core/tsconfig/src/tsconfig.json",
+  "compilerOptions": {
+    "lib": ["es2015"],
+    "baseUrl": ".",
+    "types": ["./worker-configuration.d.ts"]
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}
