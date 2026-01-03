@@ -11,7 +11,12 @@ export default {
     const environment = url.hostname.startsWith('staging')
       ? 'staging'
       : 'production';
-    const assetPath = pathSegments.slice(1).join('/') || 'index.html';
+
+    let assetPath = pathSegments.slice(1).join('/');
+    if (!assetPath || !assetPath.includes('.')) {
+      // Ensure we don't end up with double slashes
+      assetPath = assetPath ? `${assetPath}/index.html` : 'index.html';
+    }
     const r2Key = `${environment}/${deployId}/${assetPath}`;
 
     const object = await env.DEPLOYMENTS_BUCKET.get(r2Key);
