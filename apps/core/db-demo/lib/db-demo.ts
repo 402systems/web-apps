@@ -1,4 +1,4 @@
-const API_BASE_URL = '/api/db-demo';
+const API_BASE_URL = 'https://api.402systems.com/db-demo';
 
 export type Player = {
   name: string;
