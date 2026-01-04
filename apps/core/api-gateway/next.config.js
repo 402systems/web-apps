@@ -13,15 +13,6 @@ const nextConfig = {
   output: 'export',
 
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
-
-  async rewrites() {
-    return [
-      {
-        source: '/api/db-demo/:path*',
-        destination: 'https://api.402systems.com/db-demo/:path*',
-      },
-    ];
-  },
 };
 
 export default nextConfig;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@402systems/core-ui/components/ui/button';
 import { Input } from '@402systems/core-ui/components/ui/input';
 import { Trash2 } from 'lucide-react';
@@ -12,31 +12,15 @@ import {
   TableHeader,
   TableRow,
 } from '@402systems/core-ui/components/ui/table';
-
-type Player = {
-  id: number;
-  name: string;
-  team: string;
-  position: string;
-  ppg: number;
-};
-
-const initialPlayers: Player[] = [
-  { id: 1, name: 'LeBron James', team: 'LAL', position: 'SF', ppg: 25.7 },
-  { id: 2, name: 'Stephen Curry', team: 'GSW', position: 'PG', ppg: 27.3 },
-  { id: 3, name: 'Kevin Durant', team: 'PHX', position: 'SF', ppg: 27.1 },
-  { id: 4, name: 'Nikola Jokic', team: 'DEN', position: 'C', ppg: 26.4 },
-  {
-    id: 5,
-    name: 'Giannis Antetokounmpo',
-    team: 'MIL',
-    position: 'PF',
-    ppg: 29.9,
-  },
-];
+import {
+  type Player,
+  getPlayers,
+  addPlayer,
+  deletePlayer,
+} from '../lib/db-demo';
 
 export default function Page() {
-  const [players, setPlayers] = useState<Player[]>(initialPlayers);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [newPlayer, setNewPlayer] = useState({
     name: '',
     team: '',
@@ -44,27 +28,39 @@ export default function Page() {
     ppg: '',
   });
 
-  const handleAddPlayer = () => {
+  const fetchPlayers = useCallback(async () => {
+    const players = await getPlayers();
+    setPlayers(players);
+  }, []);
+
+  useEffect(() => {
+    const f = async () => {
+      await fetchPlayers();
+    };
+    f();
+  }, [fetchPlayers]);
+
+  const handleAddPlayer = async () => {
     if (
       newPlayer.name &&
       newPlayer.team &&
       newPlayer.position &&
       newPlayer.ppg
     ) {
-      const playerToAdd: Player = {
-        id: players.length > 0 ? Math.max(...players.map((p) => p.id)) + 1 : 1,
+      await addPlayer({
         name: newPlayer.name,
         team: newPlayer.team,
         position: newPlayer.position,
         ppg: parseFloat(newPlayer.ppg),
-      };
-      setPlayers([...players, playerToAdd]);
+      });
       setNewPlayer({ name: '', team: '', position: '', ppg: '' });
+      fetchPlayers();
     }
   };
 
-  const handleDeletePlayer = (id: number) => {
-    setPlayers(players.filter((player) => player.id !== id));
+  const handleDeletePlayer = async (name: string) => {
+    await deletePlayer(name);
+    fetchPlayers();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,7 +122,7 @@ export default function Page() {
           </TableHeader>
           <TableBody>
             {players.map((player) => (
-              <TableRow key={player.id}>
+              <TableRow key={player.name}>
                 <TableCell>{player.name}</TableCell>
                 <TableCell>{player.team}</TableCell>
                 <TableCell>{player.position}</TableCell>
@@ -134,7 +130,7 @@ export default function Page() {
                 <TableCell>
                   <Button
                     variant="destructive"
-                    onClick={() => handleDeletePlayer(player.id)}
+                    onClick={() => handleDeletePlayer(player.name)}
                     size="icon"
                   >
                     <Trash2 />
