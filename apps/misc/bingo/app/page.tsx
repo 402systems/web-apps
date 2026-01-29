@@ -5,7 +5,6 @@ import { toPng, toBlob } from 'html-to-image';
 import { Button } from '@402systems/core-ui/components/ui/button';
 import { Card } from '@402systems/core-ui/components/ui/card';
 import { Textarea } from '@402systems/core-ui/components/ui/textarea';
-import { Badge } from '@402systems/core-ui/components/ui/badge';
 import { Kbd } from '@402systems/core-ui/components/ui/kbd';
 import { Download, Share2, Printer } from 'lucide-react';
 
@@ -129,14 +128,6 @@ export default function BingoPage() {
             <div key={i} className="aspect-square w-full">
               {isPreview ? (
                 <div className="group relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-slate-100 bg-slate-50 p-1 text-center text-[10px] font-medium text-slate-700 sm:p-2 sm:text-sm">
-                  {i === 12 ? (
-                    <Badge
-                      variant="secondary"
-                      className="absolute top-1 right-1 scale-75"
-                    >
-                      FREE
-                    </Badge>
-                  ) : null}
                   <span className="max-w-full break-words">
                     {cell || (i === 12 ? 'FREE' : '-')}
                   </span>
