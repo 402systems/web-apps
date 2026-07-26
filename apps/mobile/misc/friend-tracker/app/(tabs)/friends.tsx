@@ -20,6 +20,7 @@ import { ContactPickerModal } from '../../components/ContactPickerModal';
 import { ManageGroupsModal } from '../../components/ManageGroupsModal';
 import { AssignGroupsModal } from '../../components/AssignGroupsModal';
 import { FriendDetailModal } from '../../components/FriendDetailModal';
+import { SyncStatusPill, OfflineBanner } from '../../components/SyncStatusPill';
 import { getDaysSince } from '../../hooks/useFriends';
 import { colors } from '../../utils/colors';
 
@@ -128,8 +129,9 @@ export default function FriendsScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Friends</Text>
         <View style={styles.headerRight}>
+          <SyncStatusPill />
           <Pressable
-            onPress={refresh}
+            onPress={() => refresh()}
             disabled={isRefreshing}
             style={styles.refreshBtn}
           >
@@ -162,6 +164,8 @@ export default function FriendsScreen() {
           </Pressable>
         </View>
       </View>
+
+      <OfflineBanner />
 
       {/* Error banner */}
       {error && (
@@ -367,7 +371,12 @@ const styles = StyleSheet.create({
     color: colors.primary,
     letterSpacing: -0.5,
   },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexShrink: 1,
+  },
   refreshBtn: { padding: 6 },
   userPill: {
     backgroundColor: colors.bgInput,

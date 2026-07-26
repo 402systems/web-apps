@@ -50,7 +50,7 @@ export default function GroupsScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Groups</Text>
         <Pressable
-          onPress={refresh}
+          onPress={() => refresh()}
           disabled={isRefreshing}
           style={styles.refreshBtn}
         >

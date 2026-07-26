@@ -11,10 +11,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppContext, type AppEvent } from '../../context/AppContext';
 import { EventCard } from '../../components/EventCard';
+import { EventCalendar } from '../../components/EventCalendar';
 import { CreateEventModal } from '../../components/CreateEventModal';
 import { EventDetailModal } from '../../components/EventDetailModal';
+import { SyncStatusPill, OfflineBanner } from '../../components/SyncStatusPill';
 import { isPast } from '../../utils/date';
 import { colors } from '../../utils/colors';
+
+type ViewMode = 'list' | 'calendar';
 
 export default function EventsScreen() {
   const {
@@ -32,6 +36,7 @@ export default function EventsScreen() {
 
   const [createVisible, setCreateVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<AppEvent | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   const upcoming = events.filter((e) => !isPast(e.date));
   const past = events
@@ -54,8 +59,9 @@ export default function EventsScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Events</Text>
         <View style={styles.headerRight}>
+          <SyncStatusPill />
           <Pressable
-            onPress={refresh}
+            onPress={() => refresh()}
             disabled={isRefreshing}
             style={styles.refreshBtn}
           >
@@ -78,10 +84,45 @@ export default function EventsScreen() {
         </View>
       </View>
 
+      <OfflineBanner />
+
+      {/* List / calendar toggle */}
+      <View style={styles.segment}>
+        {(['list', 'calendar'] as const).map((mode) => {
+          const active = viewMode === mode;
+          return (
+            <Pressable
+              key={mode}
+              onPress={() => setViewMode(mode)}
+              style={[styles.segmentBtn, active && styles.segmentBtnActive]}
+            >
+              <Ionicons
+                name={mode === 'list' ? 'list-outline' : 'calendar-outline'}
+                size={14}
+                color={active ? colors.primary : colors.textMuted}
+              />
+              <Text
+                style={[styles.segmentText, active && styles.segmentTextActive]}
+              >
+                {mode === 'list' ? 'List' : 'Calendar'}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
       {isLoadingEvents ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.textMuted} />
         </View>
+      ) : viewMode === 'calendar' ? (
+        <EventCalendar
+          events={events}
+          friends={friends}
+          onSelectEvent={setSelectedEvent}
+          onDeleteEvent={deleteEvent}
+          onCreateEvent={() => setCreateVisible(true)}
+        />
       ) : events.length === 0 ? (
         <View style={styles.center}>
           <Text style={styles.emptyIcon}>📅</Text>
@@ -155,7 +196,12 @@ const styles = StyleSheet.create({
     color: colors.primary,
     letterSpacing: -0.5,
   },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexShrink: 1,
+  },
   refreshBtn: { padding: 6 },
   newBtn: {
     backgroundColor: colors.primary,
@@ -164,6 +210,27 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   newBtnText: { fontSize: 14, fontWeight: '600', color: colors.bgCard },
+  segment: {
+    flexDirection: 'row',
+    alignSelf: 'flex-start',
+    marginHorizontal: 20,
+    marginBottom: 12,
+    backgroundColor: colors.bgInput,
+    borderRadius: 10,
+    padding: 3,
+    gap: 2,
+  },
+  segmentBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  segmentBtnActive: { backgroundColor: colors.bgCard },
+  segmentText: { fontSize: 13, fontWeight: '600', color: colors.textMuted },
+  segmentTextActive: { color: colors.primary },
   center: {
     flex: 1,
     alignItems: 'center',
