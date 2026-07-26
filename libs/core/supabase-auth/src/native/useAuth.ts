@@ -9,10 +9,16 @@ export function useAuth(): UseAuthReturn {
   const [supabase] = useState(() => createClient());
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-      setLoading(false);
-    });
+    // getSession() reads the persisted session from AsyncStorage, so it
+    // resolves without a network round-trip. getUser() would hit the auth
+    // server and hang the app on launch when the device is offline.
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+      })
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
 
     const {
       data: { subscription },
