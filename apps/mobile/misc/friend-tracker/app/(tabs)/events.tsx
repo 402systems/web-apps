@@ -9,13 +9,17 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppContext, type AppEvent } from '../../context/AppContext';
+import {
+  useAppContext,
+  type AppEvent,
+  type NewEvent,
+} from '../../context/AppContext';
 import { EventCard } from '../../components/EventCard';
 import { EventCalendar } from '../../components/EventCalendar';
 import { CreateEventModal } from '../../components/CreateEventModal';
 import { EventDetailModal } from '../../components/EventDetailModal';
 import { SyncStatusPill, OfflineBanner } from '../../components/SyncStatusPill';
-import { isPast } from '../../utils/date';
+import { isPast, toDateKey } from '../../utils/date';
 import { colors } from '../../utils/colors';
 
 type ViewMode = 'list' | 'calendar';
@@ -37,6 +41,14 @@ export default function EventsScreen() {
   const [createVisible, setCreateVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<AppEvent | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [calendarDate, setCalendarDate] = useState(() => toDateKey(new Date()));
+
+  const handleCreateEvent = async (event: NewEvent, friendIds: string[]) => {
+    const created = await createEvent(event);
+    if (created && friendIds.length > 0) {
+      await addFriendsToEvent(created.id, friendIds);
+    }
+  };
 
   const upcoming = events.filter((e) => !isPast(e.date));
   const past = events
@@ -122,6 +134,8 @@ export default function EventsScreen() {
           onSelectEvent={setSelectedEvent}
           onDeleteEvent={deleteEvent}
           onCreateEvent={() => setCreateVisible(true)}
+          selectedDate={calendarDate}
+          onSelectedDateChange={setCalendarDate}
         />
       ) : events.length === 0 ? (
         <View style={styles.center}>
@@ -163,7 +177,9 @@ export default function EventsScreen() {
       <CreateEventModal
         visible={createVisible}
         onClose={() => setCreateVisible(false)}
-        onCreate={createEvent}
+        onCreate={handleCreateEvent}
+        friends={friends}
+        initialDate={viewMode === 'calendar' ? calendarDate : undefined}
       />
 
       <EventDetailModal

@@ -5,6 +5,7 @@ import {
   FlatList,
   Pressable,
   TextInput,
+  ScrollView,
   StyleSheet,
 } from 'react-native';
 import { Modal } from '@eastlake/lib-core-ui/native/components/Modal';
@@ -32,13 +33,27 @@ export function FriendPickerModal({
     () => new Set(selectedIds)
   );
   const [search, setSearch] = useState('');
+  const [activeGroup, setActiveGroup] = useState<string | null>(null);
+
+  const groups = useMemo(
+    () => [...new Set(friends.flatMap((f) => f.groups ?? []))].sort(),
+    [friends]
+  );
+
+  const groupFiltered = useMemo(
+    () =>
+      activeGroup
+        ? friends.filter((f) => f.groups?.includes(activeGroup))
+        : friends,
+    [friends, activeGroup]
+  );
 
   const filtered = useMemo(
     () =>
-      friends.filter((f) =>
+      groupFiltered.filter((f) =>
         f.name.toLowerCase().includes(search.toLowerCase())
       ),
-    [friends, search]
+    [groupFiltered, search]
   );
 
   const toggle = (id: string) => {
@@ -46,6 +61,23 @@ export function FriendPickerModal({
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
+      return next;
+    });
+  };
+
+  const wholeGroupSelected =
+    !!activeGroup &&
+    groupFiltered.length > 0 &&
+    groupFiltered.every((f) => selected.has(f.id));
+
+  const toggleWholeGroup = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (wholeGroupSelected) {
+        for (const f of groupFiltered) next.delete(f.id);
+      } else {
+        for (const f of groupFiltered) next.add(f.id);
+      }
       return next;
     });
   };
@@ -64,6 +96,66 @@ export function FriendPickerModal({
         value={search}
         onChangeText={setSearch}
       />
+
+      {groups.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.groupRow}
+          style={styles.groupScroll}
+        >
+          <Pressable onPress={() => setActiveGroup(null)}>
+            <View
+              style={[styles.chip, activeGroup === null && styles.chipActive]}
+            >
+              <Text
+                style={[
+                  styles.chipText,
+                  activeGroup === null && styles.chipTextActive,
+                ]}
+              >
+                All
+              </Text>
+            </View>
+          </Pressable>
+          {groups.map((name) => (
+            <Pressable key={name} onPress={() => setActiveGroup(name)}>
+              <View
+                style={[styles.chip, activeGroup === name && styles.chipActive]}
+              >
+                <Text
+                  style={[
+                    styles.chipText,
+                    activeGroup === name && styles.chipTextActive,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {name}
+                </Text>
+              </View>
+            </Pressable>
+          ))}
+        </ScrollView>
+      )}
+
+      {activeGroup && groupFiltered.length > 0 && (
+        <Pressable onPress={toggleWholeGroup} style={styles.wholeGroupRow}>
+          <Text style={styles.wholeGroupText}>
+            {wholeGroupSelected
+              ? `Deselect all of ${activeGroup}`
+              : `Select whole group (${groupFiltered.length})`}
+          </Text>
+          <View
+            style={[
+              styles.checkbox,
+              wholeGroupSelected && styles.checkboxChecked,
+            ]}
+          >
+            {wholeGroupSelected && <Text style={styles.checkmark}>✓</Text>}
+          </View>
+        </Pressable>
+      )}
+
       <FlatList
         data={filtered}
         keyExtractor={(f) => f.id}
@@ -83,6 +175,9 @@ export function FriendPickerModal({
           );
         }}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No friends found</Text>
+        }
       />
       <Pressable onPress={handleConfirm} style={styles.confirmBtn}>
         <Text style={styles.confirmBtnText}>
@@ -105,6 +200,41 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.primary,
     marginBottom: 12,
+  },
+  groupScroll: { flexGrow: 0, flexShrink: 0, marginBottom: 8 },
+  groupRow: { gap: 8 },
+  chip: {
+    backgroundColor: colors.bgInput,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    flexShrink: 0,
+    maxWidth: 160,
+  },
+  chipActive: { backgroundColor: colors.primary },
+  chipText: { fontSize: 13, fontWeight: '600', color: colors.textSecondary },
+  chipTextActive: { color: colors.bgCard },
+  wholeGroupRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.bgInput,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 8,
+  },
+  wholeGroupText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textSecondary,
+    flex: 1,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: colors.textMuted,
+    textAlign: 'center',
+    paddingVertical: 16,
   },
   list: { maxHeight: 240 },
   row: {
