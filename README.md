@@ -15,7 +15,7 @@ eastlake/
       core/        api-gateway, db-demo-api
       misc/        friend-tracker-api
     mobile/        Expo / React Native apps
-      misc/        friend-tracker
+      misc/        friend-tracker, quote-break, house-sitter
   libs/core/       Shared libraries
     eslint/        ESLint config
     prettier/      Prettier config (ESM + tailwind plugin)
