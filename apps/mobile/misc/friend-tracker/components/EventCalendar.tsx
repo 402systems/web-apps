@@ -12,6 +12,8 @@ interface EventCalendarProps {
   onSelectEvent: (event: AppEvent) => void;
   onDeleteEvent: (eventId: string) => void;
   onCreateEvent: () => void;
+  selectedDate: string;
+  onSelectedDateChange: (date: string) => void;
 }
 
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
@@ -47,13 +49,14 @@ export function EventCalendar({
   onSelectEvent,
   onDeleteEvent,
   onCreateEvent,
+  selectedDate,
+  onSelectedDateChange,
 }: EventCalendarProps) {
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
 
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
-  const [selectedDate, setSelectedDate] = useState<string>(todayKey);
 
   const eventsByDate = useMemo(() => {
     const map: Record<string, AppEvent[]> = {};
@@ -84,7 +87,7 @@ export function EventCalendar({
   const goToToday = () => {
     setViewYear(today.getFullYear());
     setViewMonth(today.getMonth());
-    setSelectedDate(todayKey);
+    onSelectedDateChange(todayKey);
   };
 
   const showingCurrentMonth =
@@ -163,7 +166,7 @@ export function EventCalendar({
             return (
               <Pressable
                 key={dateKey}
-                onPress={() => setSelectedDate(dateKey)}
+                onPress={() => onSelectedDateChange(dateKey)}
                 style={styles.dayCell}
               >
                 <View
