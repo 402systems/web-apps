@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "House Sitter",
+    "slug": "house-sitter",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "house-sitter",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "android": {
+      "package": "com.fourzerotwo.housesitter",
+      "adaptiveIcon": {
+        "backgroundColor": "#f8fafc",
+        "foregroundImage": "./assets/adaptive-icon.png"
+      }
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.402systems.housesitter"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-notifications",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "House Sitter watches for when you leave the house so it can remind you to lock up.",
+          "locationWhenInUsePermission": "House Sitter uses your location to tell whether you're at the house.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
