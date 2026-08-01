@@ -58,9 +58,12 @@ jobs:
         run: |
           gh release delete house-sitter-latest --yes 2>/dev/null || true
           git push origin :refs/tags/house-sitter-latest 2>/dev/null || true
+          cat > /tmp/house-sitter-notes.md <<'NOTES'
+          **Install:** download the APK, open it on your Android device (you may need Settings → Install unknown apps enabled for your browser).
+
+          **First run:** open the Leaving tab, stand inside the apartment, and tap *Set the house to here*. Grant location "Allow all the time" so leave alerts fire with the app closed.
+          NOTES
           gh release create house-sitter-latest /tmp/house-sitter.apk \
             --title "House Sitter – Latest Build" \
-            --notes "**Install:** download the APK, open it on your Android device (you may need Settings → Install unknown apps enabled for your browser).
-
-**First run:** open the Leaving tab, stand inside the apartment, and tap *Set the house to here*. Grant location \"Allow all the time\" so leave alerts fire with the app closed." \
+            --notes-file /tmp/house-sitter-notes.md \
             --prerelease
